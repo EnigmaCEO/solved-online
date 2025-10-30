@@ -57,6 +57,9 @@ export class MainMenu extends Scene {
     this.load.image('profile', 'btn_leaderboard.png');
     this.load.image('achievements', 'btn_awards.png');
     this.load.image('adventure', 'btn_map.png');
+
+    // background music
+    this.load.audio('background-music','Sounds/bg3.ogg');
   }
 
   init(): void {
@@ -131,7 +134,13 @@ export class MainMenu extends Scene {
     this.manObject.alpha = 0;
     fadeIn(images[index]!);
 
-
+    // play music
+    this.sound.stopAll();
+   
+    this.sound.play('background-music', {
+      loop: false,
+      volume: 0.3,
+    });
     
     this.logo = this.add.image(-9999, 0, 'logo').setOrigin(0.5, 0);
 
@@ -140,6 +149,12 @@ export class MainMenu extends Scene {
       .image(-9999, 0, 'play')
       .setOrigin(0.5, 0)
       .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => {
+        this.dailyButton!.setPosition(this.dailyButton!.x, this.dailyButton!.y - 5);
+      })
+      .on('pointerout', () => {
+        this.dailyButton!.setPosition(this.dailyButton!.x, this.dailyButton!.y + 5);
+      })
       .on('pointerdown', () => {
 
         const puzzleConfig: PuzzleConfig = {
@@ -160,15 +175,36 @@ export class MainMenu extends Scene {
       });
 
     
-    this.leisureButton = this.add.image(-9999, 0, 'leisure').setOrigin(0.5, 0).setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+    this.leisureButton = this.add.image(-9999, 0, 'leisure').setOrigin(0.5, 0).setInteractive({ useHandCursor: true })
+    .on('pointerover', () => {
+      this.leisureButton!.setPosition(this.leisureButton!.x, this.leisureButton!.y - 5);
+    })
+    .on('pointerout', () => {
+      this.leisureButton!.setPosition(this.leisureButton!.x, this.leisureButton!.y + 5);
+    })
+    .on('pointerdown', () => {
       this.scene.start('Leisure');
     });
 
-    this.communityButton = this.add.image(-9999, 0, 'community').setOrigin(0.5, 0).setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+    this.communityButton = this.add.image(-9999, 0, 'community').setOrigin(0.5, 0).setInteractive({ useHandCursor: true })
+    .on('pointerover', () => {
+      this.communityButton!.setPosition(this.communityButton!.x, this.communityButton!.y - 5);
+    })
+    .on('pointerout', () => {
+      this.communityButton!.setPosition(this.communityButton!.x, this.communityButton!.y + 5);
+    })
+    .on('pointerdown', () => {
       void this.showCommunityPuzzles();
     });
 
-    this.profileButton = this.add.image(-9999, 0, 'profile').setOrigin(0.5, 0).setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+    this.profileButton = this.add.image(-9999, 0, 'profile').setOrigin(0.5, 0).setInteractive({ useHandCursor: true })
+    .on('pointerover', () => {
+      this.profileButton!.setPosition(this.profileButton!.x, this.profileButton!.y - 5);
+    })
+    .on('pointerout', () => {
+      this.profileButton!.setPosition(this.profileButton!.x, this.profileButton!.y + 5);
+    })
+    .on('pointerdown', () => {
       this.scene.start('Profile');
     });
 
@@ -176,6 +212,12 @@ export class MainMenu extends Scene {
       .image(-9999, 0, 'achievements')
       .setOrigin(0.5, 0)
       .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => {
+        this.achievementsButton!.setPosition(this.achievementsButton!.x, this.achievementsButton!.y - 5);
+      })
+      .on('pointerout', () => {
+        this.achievementsButton!.setPosition(this.achievementsButton!.x, this.achievementsButton!.y + 5);
+      })
       .on('pointerdown', () => {
         this.scene.start('Achievements');
       });
@@ -184,6 +226,12 @@ export class MainMenu extends Scene {
       .image(-9999, 0, 'adventure')
       .setOrigin(0.5, 0)
       .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => {
+        this.adventureButton!.setPosition(this.adventureButton!.x, this.adventureButton!.y - 5);
+      })
+      .on('pointerout', () => {
+        this.adventureButton!.setPosition(this.adventureButton!.x, this.adventureButton!.y + 5);
+      })
       .on('pointerdown', () => {
         //this.scene.start('Adventure');
       });

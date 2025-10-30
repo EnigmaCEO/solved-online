@@ -1302,6 +1302,11 @@ router.get<{ postId: string }, CommunityPuzzleResponse>(
         const submissionData = await redis.get(submissionKey);
         if (submissionData) {
           const puzzle = JSON.parse(submissionData);
+          // remove puzzles with no postId from redis
+          if (!puzzle.postId) {
+            await redis.del(submissionKey);
+            continue;
+          }
           allPostIds.push(puzzle.postId || 'NO_POST_ID');
           puzzleDetails.push({
             puzzleId: puzzle.id,
@@ -1397,7 +1402,27 @@ router.get<Record<string, never>, CommunityPuzzleListResponse>(
         const submissionKey = `community:puzzle:${puzzleId}`;
         const submissionData = await redis.get(submissionKey);
         if (submissionData) {
-          puzzles.push(JSON.parse(submissionData));
+          // check reddit to see if the postID is still active
+          const puzzle = JSON.parse(submissionData);
+          //console.log('🔍 Checking puzzle:', puzzle);
+
+          if(puzzle.postId) {
+            const post = await reddit.getPostById(puzzle.postId);
+            console.log('🔍 Post found:', post);
+
+            if (post && !post.removed) {
+              puzzles.push(JSON.parse(submissionData));
+            } else {
+              // if the post is not found, remove the puzzle from the list
+              const index = puzzleIds.indexOf(puzzleId);
+
+              if (index > -1) {
+                puzzleIds.splice(index, 1);
+              }
+              console.log('🔍 Removing puzzle from list:', puzzleId);
+              await redis.set(submissionsListKey, JSON.stringify(puzzleIds));
+            }
+          }
         }
       }
 

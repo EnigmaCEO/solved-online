@@ -40,16 +40,23 @@ interface DifficultyProgress {
 
 export class Leisure extends Scene {
   private background!: GameObjects.Image;
+  logo: Phaser.GameObjects.Image | null = null;
+
   private scrollContainer!: GameObjects.Container;
   private puzzleCards: GameObjects.Container[] = [];
   private categoryButtons: GameObjects.Container[] = [];
-  private currentCategory: string = 'all';
+  private currentCategory: string = 'easy';
   private scrollY: number = 0;
   private maxScrollY: number = 0;
   private isDragging: boolean = false;
   private dragStartY: number = 0;
   private scrollStartY: number = 0;
   private difficultyProgress!: DifficultyProgress;
+
+  backbutton: Phaser.GameObjects.Image | null = null;
+  puzzleBG: Phaser.GameObjects.Image | null = null;
+  imgStamp: Phaser.GameObjects.Image | null = null;
+  
 
   // Puzzle data - sorted by difficulty for progression system
   // Using only confirmed existing images (0-0.png through 0-7.png)
@@ -77,100 +84,74 @@ export class Leisure extends Scene {
       stars: 0,
       unlocked: true,
     },
-    
-    // MEDIUM - Unlocked when all easy puzzles are completed
     {
       id: 'ocean-beach',
       title: 'Tropical Beach',
       imageKey: 'puzzle-beach',
       imagePath: 'assets/Puzzles/0-2.png',
-      pieces: 35,
-      difficulty: 'medium',
+      pieces: 20,
+      difficulty: 'easy',
       completed: false,
       stars: 0,
-      unlocked: false,
+      unlocked: true,
     },
     {
       id: 'landscape-mountain',
       title: 'Mountain Vista',
       imageKey: 'puzzle-mountain',
       imagePath: 'assets/Puzzles/0-3.png',
-      pieces: 35,
-      difficulty: 'medium',
+      pieces: 20,
+      difficulty: 'easy',
       completed: false,
       stars: 0,
-      unlocked: false,
+      unlocked: true,
     },
     {
       id: 'space-saturn',
       title: 'Saturn',
       imageKey: 'puzzle-saturn',
       imagePath: 'assets/Puzzles/0-4.png',
-      pieces: 35,
-      difficulty: 'medium',
+      pieces: 20,
+      difficulty: 'easy',
       completed: false,
       stars: 0,
-      unlocked: false,
+      unlocked: true,
     },
-    
-    // HARD - Unlocked when all medium puzzles are completed
     {
       id: 'space-galaxy',
       title: 'Galaxy Spiral',
       imageKey: 'puzzle-galaxy',
       imagePath: 'assets/Puzzles/0-5.png',
-      pieces: 63,
-      difficulty: 'hard',
+      pieces: 20,
+      difficulty: 'easy',
       completed: false,
       stars: 0,
-      unlocked: false,
+      unlocked: true,
     },
     {
       id: 'nature-lake',
       title: 'Peaceful Lake',
       imageKey: 'puzzle-lake',
       imagePath: 'assets/Puzzles/0-6.png',
-      pieces: 63,
-      difficulty: 'hard',
+      pieces: 20,
+      difficulty: 'easy',
       completed: false,
       stars: 0,
-      unlocked: false,
+      unlocked: true,
     },
     {
       id: 'city-skyline',
       title: 'City Skyline',
       imageKey: 'puzzle-city',
       imagePath: 'assets/Puzzles/0-7.png',
-      pieces: 80,
-      difficulty: 'hard',
+      pieces: 20,
+      difficulty: 'easy',
       completed: false,
       stars: 0,
-      unlocked: false,
+      unlocked: true,
     },
     
-    // EXPERT - Unlocked when all hard puzzles are completed
-    {
-      id: 'advanced-waterfall',
-      title: 'Advanced Waterfall',
-      imageKey: 'puzzle-waterfall-expert',
-      imagePath: 'assets/Puzzles/0-0.png', // Reuse existing image with higher piece count
-      pieces: 108,
-      difficulty: 'expert',
-      completed: false,
-      stars: 0,
-      unlocked: false,
-    },
-    {
-      id: 'master-beach',
-      title: 'Master Beach',
-      imageKey: 'puzzle-beach-expert',
-      imagePath: 'assets/Puzzles/0-2.png', // Reuse existing image with higher piece count
-      pieces: 120,
-      difficulty: 'expert',
-      completed: false,
-      stars: 0,
-      unlocked: false,
-    },
+    
   ];
 
   constructor() {
@@ -195,6 +176,12 @@ export class Leisure extends Scene {
         this.onPuzzleCompleted(data.completedPuzzle!, data.completionData!);
       });
     }
+
+    this.backbutton = null;
+    this.puzzleBG = null;
+    this.logo = null;
+    this.imgStamp = null;
+
   }
 
   preload() {
@@ -210,9 +197,11 @@ export class Leisure extends Scene {
     this.load.image('star-empty', 'assets/ico_star.png');
     this.load.image('star-filled', 'assets/ico_star.png');
     this.load.image('lock-icon', 'assets/ico_lockM.png');
+    this.load.image('back-button', '/assets/btn_back.png');
+    this.load.image('puzzle-bg', '/assets/puzzleBG.png');
+    this.load.image('stamp', '/assets/obj_stampSolved.png');
 
-    // Create a fallback placeholder texture
-    this.load.image('puzzle-placeholder', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    this.load.audio('background-music','/assets/Sounds/bg2.ogg');
 
     // Enhanced error handling and success logging
     this.load.on('loaderror', (file: Phaser.Loader.File) => {
@@ -250,7 +239,7 @@ export class Leisure extends Scene {
       }
     });
 
-    this.load.audio('background-music','/assets/Sounds/bg2.ogg')
+    
 
     // Initialize media system in the background (non-blocking)
     this.initializeMediaSystemAsync();
@@ -362,15 +351,25 @@ export class Leisure extends Scene {
 
   create() {
     const { width, height } = this.scale;
+    const scaleFactor = Math.min(width / 1024, height / 768);
 
     // Background
-    this.background = this.add.image(width / 2, height / 2, 'leisure-bg');
-     this.background.setScale(
+   this.background = this.add.image(-9999, 0, 'background').setOrigin(0);
+    this.background!.setScale(
       Math.max(width / this.background!.width, height / this.background!.height)
     );
+    this.background!.setPosition();
+
+    this.logo = this.add.image(-9999, 0, 'logo').setOrigin(0.5, 0);
+    this.logo!.setPosition(width / 2, 10).setScale(scaleFactor);
 
     // play music
-   this.sound.add('background-music', { loop: false });
+    this.sound.stopAll();
+   
+    this.sound.play('background-music', {
+      loop: false,
+      volume: 0.3,
+    });
 
     // Update puzzle piece counts based on actual image aspect ratios
     this.updatePuzzlePieceCounts();
@@ -400,7 +399,7 @@ export class Leisure extends Scene {
     this.createPuzzleGrid();
 
     // Set up input handling
-    this.setupScrolling();
+    //this.setupScrolling();
 
     // Handle resize
     this.scale.on('resize', this.refreshLayout, this);
@@ -466,7 +465,7 @@ export class Leisure extends Scene {
 
     // Medium puzzles unlock when ALL easy puzzles are completed
     const allEasyCompleted = this.difficultyProgress.easy.completed === this.difficultyProgress.easy.total && this.difficultyProgress.easy.total > 0;
-    
+    console.log(`🔓 Easy puzzles completed: ${this.difficultyProgress.easy.completed}/${this.difficultyProgress.easy.total}`);
     // Hard puzzles unlock when ALL medium puzzles are completed
     const allMediumCompleted = this.difficultyProgress.medium.completed === this.difficultyProgress.medium.total && this.difficultyProgress.medium.total > 0;
     
@@ -507,20 +506,8 @@ export class Leisure extends Scene {
 
 
   private createHeader(): void {
-    const { width } = this.scale;
+    const { width, height } = this.scale;
     const isMobile = width <= 400;
-
-    // Title - smaller on mobile with platform indicator
-   /* const titleText = isMobile ? 'PUZZLE GALLERY 📱' : 'PUZZLE GALLERY';
-    this.add
-      .text(width / 2, isMobile ? 25 : 30, titleText, {
-        fontSize: isMobile ? '20px' : '32px',
-        color: '#8B4513',
-        fontStyle: 'bold',
-        stroke: '#FFFFFF',
-        strokeThickness: 2,
-      })
-      .setOrigin(0.5);*/
 
     // Progress indicator
     const totalCompleted = this.puzzleData.filter(p => p.completed).length;
@@ -529,42 +516,35 @@ export class Leisure extends Scene {
       ? `${totalCompleted}/${totalPuzzles} Complete`
       : `Progress: ${totalCompleted}/${totalPuzzles} Puzzles Complete`;
     
-    this.add
+    /*this.add
       .text(width / 2, isMobile ? 45 : 55, progressText, {
         fontSize: isMobile ? '12px' : '14px',
         color: totalCompleted === totalPuzzles ? '#4CAF50' : '#666666',
         fontStyle: 'bold',
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5);*/
 
     // Add mobile optimization notice
     if (isMobile) {
-      this.add
+      /*this.add
         .text(width / 2, 60, 'Mobile Optimized', {
           fontSize: '10px',
           color: '#888888',
           fontStyle: 'italic',
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5);*/
     }
 
     // Back button - smaller on mobile
-    const backButton = this.add
-      .text(isMobile ? 15 : 20, isMobile ? 25 : 30, '← Back', {
-        fontSize: isMobile ? '16px' : '20px',
-        color: '#FFFFFF',
-        backgroundColor: '#8B4513',
-        padding: { x: isMobile ? 8 : 12, y: isMobile ? 4 : 6 },
-      })
-      .setOrigin(0, 0.5)
+    this.backbutton = this.add
+      .image(width * 0.025, height * 0.025, 'back-button')
+      .setDepth(2000)
+      .setOrigin(0,0)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => {
         this.scene.start('MainMenu');
       });
 
-    // Add hover effect
-    backButton.on('pointerover', () => backButton.setScale(1.05));
-    backButton.on('pointerout', () => backButton.setScale(1));
   }
 
   private createCategoryButtons(): void {
@@ -573,23 +553,24 @@ export class Leisure extends Scene {
     
     // Difficulty-based categories with progress indicators
     const categories = [
-      { key: 'all', label: 'All', difficulty: '' },
+      /*{ key: 'all', label: 'All', difficulty: '' },*/
       { key: 'easy', label: isMobile ? 'Easy' : 'Easy', difficulty: 'easy' },
-      { key: 'medium', label: isMobile ? 'Med' : 'Medium', difficulty: 'medium' },
+      { key: 'medium', label: isMobile ? 'Medium' : 'Medium', difficulty: 'medium' },
       { key: 'hard', label: 'Hard', difficulty: 'hard' },
-      { key: 'expert', label: isMobile ? 'Exp' : 'Expert', difficulty: 'expert' },
+      { key: 'expert', label: isMobile ? 'Expert' : 'Expert', difficulty: 'expert' },
     ];
 
     // Mobile-optimized button dimensions
-    const buttonWidth = isMobile ? 55 : 80;
+    const buttonWidth = isMobile ? 85 : 100;
     const buttonHeight = isMobile ? 35 : 40;
     const spacing = isMobile ? 4 : 8;
     const totalWidth = categories.length * buttonWidth + (categories.length - 1) * spacing;
     const startX = Math.max(15, (width - totalWidth) / 2);
 
+    this.updateDifficultyProgress();
     categories.forEach((category, index) => {
       const x = startX + buttonWidth / 2 + index * (buttonWidth + spacing);
-      const y = isMobile ? 55 : 80;
+      const y = isMobile ? 100 : 120;
 
       const button = this.add.container(x, y);
 
@@ -614,7 +595,9 @@ export class Leisure extends Scene {
 
       // Progress indicator for difficulty categories
       if (category.difficulty && this.difficultyProgress) {
+        
         const progress = this.difficultyProgress[category.difficulty as keyof DifficultyProgress];
+        console.log(`🎯 Progress for ${category.difficulty}:`, progress);
         const progressText = `${progress.completed}/${progress.total}`;
         const progressColor = progress.completed === progress.total && progress.total > 0 ? '#00FF00' : '#FFFF00';
         
@@ -681,16 +664,14 @@ export class Leisure extends Scene {
     const isMobile = width <= 400;
     
     // Mobile-optimized card dimensions - slightly taller to accommodate aspect ratios
-    const cardWidth = isMobile ? 150 : 160;
-    const cardHeight = isMobile ? 140 : 150;
+    const cardWidth = isMobile ? 130 : 160;
+    const cardHeight = isMobile ? 100 : 120;
     const spacing = isMobile ? 8 : 20;
-    const margin = isMobile ? 20 : 40;
     
     // Calculate columns more carefully to prevent cutoff
-    const availableWidth = width - (margin * 2);
+    const availableWidth = width - width * 0.05;
     const cols = Math.floor(availableWidth / (cardWidth + spacing));
-    const actualGridWidth = cols * cardWidth + (cols - 1) * spacing;
-    const startX = (width - actualGridWidth) / 2;
+    const startX = width * 0.025 + (availableWidth - cols * (cardWidth + spacing) + spacing) / 2;
 
     let row = 0;
     let col = 0;
@@ -698,7 +679,7 @@ export class Leisure extends Scene {
     this.puzzleData.forEach((puzzle) => {
       if (this.shouldShowPuzzle(puzzle)) {
         const x = startX + cardWidth / 2 + col * (cardWidth + spacing);
-        const y = row * (cardHeight + spacing) + cardHeight / 2 + 20;
+        const y = row * (cardHeight + spacing) + cardHeight / 2 + height * 0.1;
 
         const card = this.createPuzzleCard(puzzle, x, y, cardWidth, cardHeight);
         this.scrollContainer.add(card);
@@ -727,26 +708,28 @@ export class Leisure extends Scene {
     const card = this.add.container(x, y);
 
     // Card background with enhanced styling
-    const bg = this.add.rectangle(0, 0, width, height, 0xf5deb3);
-    bg.setStrokeStyle(3, 0x8b4513);
+    /*const bg = this.add.rectangle(0, 0, width, height, 0xf5deb3);
+    bg.setStrokeStyle(3, 0x8b4513);*/
+
+    this.puzzleBG = this.add.image(0, 0, 'puzzle-bg').setDisplaySize(width, height);
     
     // Add a subtle inner glow for unlocked puzzles
-    const innerGlow = this.add.rectangle(0, 0, width - 6, height - 6, 0xffffff, 0.1);
+    //const innerGlow = this.add.rectangle(0, 0, width - 6, height - 6, 0xffffff, 0.1);
     
-    card.add([bg, innerGlow]);
+    card.add(this.puzzleBG);
 
     // Check if image loaded successfully
     const imageExists = this.textures.exists(puzzle.imageKey) && !this.failedImages.has(puzzle.imageKey);
     
-    console.log(`Creating card for ${puzzle.title}:`);
+    /*console.log(`Creating card for ${puzzle.title}:`);
     console.log(`  - Image key: ${puzzle.imageKey}`);
     console.log(`  - Image path: ${puzzle.imagePath}`);
     console.log(`  - Texture exists: ${imageExists}`);
-    console.log(`  - Failed images: ${Array.from(this.failedImages)}`);
+    console.log(`  - Failed images: ${Array.from(this.failedImages)}`);*/
     
     // Puzzle image (if available, otherwise placeholder)
     if (imageExists) {
-      const puzzleImage = this.add.image(0, -20, puzzle.imageKey);
+      const puzzleImage = this.add.image(0, -3, puzzle.imageKey);
       
       // Calculate aspect ratio and fit image properly within card bounds
       const texture = this.textures.get(puzzle.imageKey);
@@ -758,8 +741,8 @@ export class Leisure extends Scene {
         const imageAspectRatio = sourceWidth / sourceHeight;
         
         // Available space for image (leaving room for title and piece count)
-        const availableWidth = width - 20;
-        const availableHeight = height - 60;
+        const availableWidth = width-20;
+        const availableHeight = height - 20;
         const availableAspectRatio = availableWidth / availableHeight;
         
         let displayWidth: number;
@@ -807,11 +790,17 @@ export class Leisure extends Scene {
       .setOrigin(0);
     card.add(pieceText);
 
+    // add stamp for completed puzzles
+    if (puzzle.completed) {
+      const stamp = this.add.image(0, 0, 'stamp');
+      card.add(stamp);
+    }
+
     // Stars
-    this.createStars(card, puzzle.stars);
+    this.createStars(card, puzzle.stars, height);
 
     // Best score and perfect completion badge (if completed)
-    if (puzzle.completed && puzzle.bestScore !== undefined) {
+    /*if (puzzle.completed && puzzle.bestScore !== undefined) {
       const perfectBadge = puzzle.perfectCompletion ? ' 🏆' : '';
       const scoreText = this.add
         .text(
@@ -845,11 +834,10 @@ export class Leisure extends Scene {
           .setOrigin(1, 0);
         card.add(streakText);
       }
-    }
+    }*/
 
     // Lock overlay for locked puzzles
     if (!puzzle.unlocked) {
-      const lockOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7);
       const lockIcon = this.add.text(0, -10, '🔒', {
         fontSize: '32px',
       }).setOrigin(0.5);
@@ -860,7 +848,7 @@ export class Leisure extends Scene {
         fontStyle: 'bold',
       }).setOrigin(0.5);
       
-      card.add([lockOverlay, lockIcon, lockText]);
+      card.add([lockIcon, lockText]);
     }
 
     // Make interactive
@@ -900,21 +888,21 @@ export class Leisure extends Scene {
     return card;
   }
 
-  private createStars(container: GameObjects.Container, starCount: number): void {
+  private createStars(container: GameObjects.Container, starCount: number, height: number): void {
     const starSize = 16;
     const starSpacing = 20;
-    const startX = -(starSpacing * 2) / 2;
+    const startX = 0;
 
     for (let i = 0; i < 3; i++) {
       const x = startX + i * starSpacing;
-      const y = 50;
+      const y = -height/2 + 10;
 
       const star = this.add
         .text(x, y, i < starCount ? '⭐' : '☆', {
           fontSize: `${starSize}px`,
           color: i < starCount ? '#FFD700' : '#CCCCCC',
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5, 0);
 
       container.add(star);
     }
@@ -1201,6 +1189,7 @@ export class Leisure extends Scene {
       }
       
       // Update unlock status based on completion
+      this.updateDifficultyProgress();
       this.updateUnlockStatus();
 
       // Show progression message if new difficulty unlocked
@@ -1328,7 +1317,7 @@ export class Leisure extends Scene {
   }
 
   private checkForNewUnlocks(): void {
-    const { width, height } = this.scale;
+    //const { width, height } = this.scale;
     
     // Check if we just unlocked a new difficulty
     const allEasyCompleted = this.difficultyProgress.easy.completed === this.difficultyProgress.easy.total && this.difficultyProgress.easy.total > 0;
@@ -1356,7 +1345,7 @@ export class Leisure extends Scene {
 
     if (unlockedMessage) {
       // Show celebration message
-      const messageText = this.add.text(width / 2, height / 2, unlockedMessage, {
+      /*const messageText = this.add.text(width / 2, height / 2, unlockedMessage, {
         fontSize: '20px',
         color: '#FFFFFF',
         backgroundColor: '#4CAF50',
@@ -1381,7 +1370,7 @@ export class Leisure extends Scene {
             onComplete: () => messageText.destroy()
           });
         }
-      });
+      });*/
     }
   }
 
@@ -1398,13 +1387,18 @@ export class Leisure extends Scene {
 
   private refreshLayout(): void {
     const { width, height } = this.scale;
+    const scaleFactor = Math.min(width / 1024, height / 768);
 
     // Resize camera
     this.cameras.resize(width, height);
 
     // Update background
-    this.background.setPosition(width / 2, height / 2);
-    this.background.setDisplaySize(width, height);
+    this.background!.setScale(
+      Math.max(width / this.background!.width, height / this.background!.height)
+    );
+    this.background.setPosition();
+
+    this.logo!.setPosition(width / 2, 10).setScale(scaleFactor);
 
     // Recreate layout
     this.clearPuzzleGrid();

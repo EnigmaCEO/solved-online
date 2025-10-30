@@ -283,8 +283,9 @@ export class Solve extends Phaser.Scene {
     this.logo!.setPosition(width / 2, 10).setScale(scaleFactor);
 
     this.imgPuzzle = this.add.image(width / 2, height / 2 - height/10, 'puzzle-image').setDepth(1001).setVisible(false);
-    this.imgPuzzle.displayWidth = width - width * 0.05;
-    this.imgPuzzle.scaleY = this.imgPuzzle.scaleX;
+    //this.imgPuzzle.displayWidth = width - width * 0.05;
+    this.imgPuzzle.displayHeight = height/2 - 20;
+    this.imgPuzzle.scaleX = this.imgPuzzle.scaleY;
 
     // Create UI
     this.createUI();
@@ -330,7 +331,7 @@ export class Solve extends Phaser.Scene {
     }
     
     this.cameraButton = this.add.image(width * 0.025, height-150, 'camera-button')
-    .setScale(isMobile ? 0.6 : 1).setOrigin(0,1)
+    .setScale(isMobile ? 0.6 : 0.8).setOrigin(0,1)
     .setInteractive({ useHandCursor: true })
     .on('pointerdown', () => {
       this.showPeek();
@@ -372,7 +373,7 @@ export class Solve extends Phaser.Scene {
     if(this.btnLeftRotate) {
       this.btnLeftRotate.destroy();
     }
-    this.btnLeftRotate = this.add.image(width * 0.025, height - height * 0.1, 'btn_left_rotate')
+    this.btnLeftRotate = this.add.image(width/2 - 180, height - height * 0.1, 'btn_left_rotate')
     .setOrigin(0, 1)
     .setInteractive({ useHandCursor: true })
     .on('pointerover', () => {
@@ -387,7 +388,7 @@ export class Solve extends Phaser.Scene {
     if(this.btnRightRotate) {
       this.btnRightRotate.destroy();
     }
-    this.btnRightRotate = this.add.image(width - width * 0.025, height - height * 0.1, 'btn_right_rotate')
+    this.btnRightRotate = this.add.image(width/2 + 180, height - height * 0.1, 'btn_right_rotate')
     .setOrigin(1, 1)
     .setInteractive({ useHandCursor: true })
     .on('pointerover', () => {
@@ -408,10 +409,10 @@ export class Solve extends Phaser.Scene {
     .setOrigin(1, 1);
 
     // progress bar
-    this.imgProgressBG = this.add.image(width/2, height - 150, 'puzzleProgressBG')
+    this.imgProgressBG = this.add.image(isMobile ? width/2 : width/2 + 130 , isMobile ? height - 150 : height - 175, 'puzzleProgressBG')
     .setOrigin(0.5, 1);
 
-    this.imgProgress = this.add.image(width/2, height - 150, 'puzzleProgress')
+    this.imgProgress = this.add.image(isMobile ? width/2 : width/2 + 130 , isMobile ? height - 150 : height - 175, 'puzzleProgress')
     .setDepth(2)
     .setOrigin(0.5, 1);
 
@@ -442,20 +443,20 @@ export class Solve extends Phaser.Scene {
       this.scoreText.destroy();
     }
     this.scoreText = this.add
-      .text(width/2, 70, 'Score: 0', {
+      .text(isMobile ? width/2 : width * 0.025, 70, 'Score: 0', {
         fontSize: isMobile ? '14px' : '16px',
         color: '#000000',
         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
-      .setOrigin(0.5,0);
+      .setOrigin( isMobile ? 0.5 : 0 ,0);
 
     // Streak display
     if(this.streakText) {
       this.streakText.destroy();
     }
     this.streakText = this.add
-      .text(width * 0.025, 70, '', {
+      .text(width * 0.025, isMobile ? 70 : 100, '', {
         fontSize: isMobile ? '14px' : '16px',
         color: '#015e0eff',
         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
@@ -468,7 +469,7 @@ export class Solve extends Phaser.Scene {
       this.pieceCounterText.destroy();
     }
     this.pieceCounterText = this.add
-      .text(width / 2, height - (isMobile ? 190 : 180), '1 / 0', {
+      .text(width / 2, height - (isMobile ? 190 : 190), '1 / 0', {
         fontSize: isMobile ? '14px' : '16px',
         color: '#000000',
         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
@@ -486,7 +487,7 @@ export class Solve extends Phaser.Scene {
       this.txtInstructions.destroy();
     }
     this.txtInstructions = this.add
-      .text(width / 2, height - (isMobile ? 210 : 200), instructions, {
+      .text(width / 2, height - (isMobile ? 210 : 210), instructions, {
         fontSize: isMobile ? '10px' : '12px',
         color: '#333333',
         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
