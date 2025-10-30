@@ -194,7 +194,7 @@ export class MainMenu extends Scene {
       this.communityButton!.setPosition(this.communityButton!.x, this.communityButton!.y + 5);
     })
     .on('pointerdown', () => {
-      void this.showCommunityPuzzles();
+      //void this.showCommunityPuzzles();
     });
 
     this.profileButton = this.add.image(-9999, 0, 'profile').setOrigin(0.5, 0).setInteractive({ useHandCursor: true })
