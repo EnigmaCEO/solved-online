@@ -10,7 +10,7 @@
     }
   },
   "media": {
-    "dir": "assets"
+    "dir": "dist/client/assets"
   },
   "server": {
     "dir": "dist/server",
@@ -28,9 +28,26 @@
     ]
   },
   "triggers": {
-    "onAppInstall": "/internal/on-app-install"
+    "onAppInstall": "/internal/on-app-install",
+    "onCommentSubmit": "/internal/on-comment-submit"
   },
   "dev": {
     "subreddit": "solved_online_dev"
+  },
+  "permissions": {
+    "media": true,
+    "payments": true,
+    "realtime": false,
+    "redis": true,
+    "reddit": {
+      "enable": true,
+      "asUser": [
+        "SUBMIT_POST",
+        "SUBMIT_COMMENT"
+      ]
+    }
+  },
+  "marketingAssets": {
+    "icon": "/dist/client/assets/icon.png"
   }
 }
