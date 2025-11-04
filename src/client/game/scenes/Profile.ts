@@ -5,33 +5,44 @@ import { ExtendedUserProfile } from '../../../shared/types/api';
 export class Profile extends Scene {
   private profile: ExtendedUserProfile | null = null;
   private flairSelector: GameObjects.Container | null = null;
+  backbutton: Phaser.GameObjects.Image | null = null;
 
   constructor() {
     super('Profile');
+  }
+
+  preload() {
+      
+      this.load.image('back-button', '/assets/btn_back.png');
+    }
+
+  init() {
+    
+    this.backbutton = null;
   }
 
   create() {
     const { width, height } = this.scale;
 
     // Background
-    this.add.rectangle(width / 2, height / 2, width, height, 0x1a1a2e);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x503102);
 
     // Title
-    this.add
+    /*this.add
       .text(width / 2, 60, '👤 PROFILE', {
         fontSize: '36px',
         color: '#4A90E2',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5);*/
 
     // Back button
-    const backButton = this.add
+    /*const backButton = this.add
       .text(50, 60, '← BACK', {
         fontSize: '24px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         backgroundColor: '#4A90E2',
         padding: { x: 15, y: 8 },
       })
@@ -50,7 +61,17 @@ export class Profile extends Scene {
     backButton.on('pointerout', () => {
       backButton.setScale(1);
       backButton.setStyle({ backgroundColor: '#4A90E2' });
-    });
+    });*/
+
+    // Back button - smaller on mobile
+    this.backbutton = this.add
+      .image(width * 0.025, height * 0.025, 'back-button')
+      .setDepth(2000)
+      .setOrigin(0,0)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => {
+        this.scene.start('MainMenu');
+      });
 
     // Load profile data
     void this.loadProfile();
@@ -76,34 +97,34 @@ export class Profile extends Scene {
   private displayProfile(): void {
     if (!this.profile) return;
 
-    const { width, height } = this.scale;
+    const { width } = this.scale;
 
     // Profile header
-    let currentY = 120;
+    let currentY = 0;
 
     // Avatar and username
-    const avatarContainer = this.add.container(width / 2, currentY);
+    /*const avatarContainer = this.add.container(width / 2, currentY);
 
     // Avatar placeholder (would load actual avatar in production)
-    const avatarBg = this.add.circle(0, 0, 40, 0x4A90E2);
+    const avatarBg = this.add.circle(0, 0, 0, 0x4A90E2);
     const avatarText = this.add
       .text(0, 0, this.profile.username.charAt(0).toUpperCase(), {
-        fontSize: '32px',
+        fontSize: '16px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
-    avatarContainer.add([avatarBg, avatarText]);
+    avatarContainer.add([avatarBg, avatarText]);*/
 
     // Username and rank
-    currentY += 80;
+    currentY += 10;
     this.add
       .text(width / 2, currentY, `u/${this.profile.username}`, {
-        fontSize: '28px',
+        fontSize: '16px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
@@ -111,9 +132,9 @@ export class Profile extends Scene {
     currentY += 40;
     this.add
       .text(width / 2, currentY, `Rank #${this.profile.rank}`, {
-        fontSize: '20px',
+        fontSize: '16px',
         color: '#FFD700',
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
 
@@ -122,7 +143,7 @@ export class Profile extends Scene {
     this.createStatsGrid(currentY);
 
     // Progress section
-    currentY += 200;
+    currentY += 220;
     this.createProgressSection(currentY);
 
     // Flair selection
@@ -133,11 +154,11 @@ export class Profile extends Scene {
     currentY += 100;
     const achievementsButton = this.add
       .text(width / 2, currentY, '🏆 VIEW ACHIEVEMENTS', {
-        fontSize: '24px',
+        fontSize: '16px',
         color: '#FFFFFF',
         backgroundColor: '#9C27B0',
         padding: { x: 20, y: 12 },
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5)
@@ -172,7 +193,7 @@ export class Profile extends Scene {
     ];
 
     const cols = 2;
-    const cellWidth = width * 0.4;
+    const cellWidth = width * 0.5;
     const cellHeight = 80;
     const startX = width * 0.25;
 
@@ -198,9 +219,9 @@ export class Profile extends Scene {
       // Value
       this.add
         .text(x, y - 15, stat.value, {
-          fontSize: '20px',
+          fontSize: '16px',
           color: '#4CAF50',
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
           fontStyle: 'bold',
         })
         .setOrigin(0.5);
@@ -210,7 +231,7 @@ export class Profile extends Scene {
         .text(x, y + 10, stat.label, {
           fontSize: '14px',
           color: '#CCCCCC',
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5);
     }
@@ -224,9 +245,9 @@ export class Profile extends Scene {
     // Progress title
     this.add
       .text(width / 2, startY, 'PROGRESS', {
-        fontSize: '24px',
+        fontSize: '16px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
@@ -254,7 +275,7 @@ export class Profile extends Scene {
       .text(width / 2, progressY + 30, `${this.profile.stats.completionRate.toFixed(1)}% Complete`, {
         fontSize: '16px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
   }
@@ -267,9 +288,9 @@ export class Profile extends Scene {
     // Flair title
     this.add
       .text(width / 2, startY, 'REDDIT FLAIR', {
-        fontSize: '24px',
+        fontSize: '16px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
@@ -278,9 +299,9 @@ export class Profile extends Scene {
     const currentFlair = this.profile.flair.selectedFlair || 'None selected';
     this.add
       .text(width / 2, startY + 35, `Current: ${currentFlair}`, {
-        fontSize: '18px',
+        fontSize: '16px',
         color: '#4CAF50',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
 
@@ -289,19 +310,19 @@ export class Profile extends Scene {
       .text(width / 2, startY + 60, `${this.profile.flair.availableFlairs.length} flairs available`, {
         fontSize: '14px',
         color: '#CCCCCC',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
 
     // Available flairs
-    if (this.profile.flair.availableFlairs.length > 0) {
+/*    if (this.profile.flair.availableFlairs.length > 0) {
       const flairButton = this.add
         .text(width / 2 - 80, startY + 90, 'CHANGE FLAIR', {
           fontSize: '16px',
           color: '#FFFFFF',
           backgroundColor: '#FF6B35',
           padding: { x: 15, y: 8 },
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
@@ -327,7 +348,7 @@ export class Profile extends Scene {
           color: '#FFFFFF',
           backgroundColor: '#9C27B0',
           padding: { x: 15, y: 8 },
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
@@ -350,7 +371,7 @@ export class Profile extends Scene {
         .text(width / 2, startY + 85, 'Unlock achievements to earn flairs!', {
           fontSize: '16px',
           color: '#AAAAAA',
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5);
 
@@ -361,7 +382,7 @@ export class Profile extends Scene {
           color: '#FFFFFF',
           backgroundColor: '#9C27B0',
           padding: { x: 20, y: 10 },
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
@@ -379,7 +400,7 @@ export class Profile extends Scene {
         achievementsButton.setScale(1);
         achievementsButton.setStyle({ backgroundColor: '#9C27B0' });
       });
-    }
+    }*/
   }
 
   private showFlairSelector(): void {
@@ -402,7 +423,7 @@ export class Profile extends Scene {
       .text(0, -height * 0.25, 'SELECT FLAIR', {
         fontSize: '24px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
@@ -419,7 +440,7 @@ export class Profile extends Scene {
           color: '#FFFFFF',
           backgroundColor: flair === this.profile.flair.selectedFlair ? '#4CAF50' : '#4A90E2',
           padding: { x: 20, y: 10 },
-          fontFamily: 'Arial',
+         fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
@@ -438,7 +459,7 @@ export class Profile extends Scene {
         color: '#FFFFFF',
         backgroundColor: '#666666',
         padding: { x: 20, y: 10 },
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true })
@@ -500,7 +521,7 @@ export class Profile extends Scene {
     
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toFixed(2).padStart(2, '0')}`;
   }
 
   private showError(message: string): void {
@@ -510,7 +531,7 @@ export class Profile extends Scene {
       .text(width / 2, height / 2, message, {
         fontSize: '24px',
         color: '#FF6B6B',
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         align: 'center',
       })
       .setOrigin(0.5);
@@ -525,7 +546,7 @@ export class Profile extends Scene {
         color: '#FFFFFF',
         backgroundColor: `#${color.toString(16)}`,
         padding: { x: 20, y: 10 },
-        fontFamily: 'Arial',
+       fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
 

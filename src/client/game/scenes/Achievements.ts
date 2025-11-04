@@ -7,23 +7,34 @@ export class Achievements extends Scene {
   private scrollContainer: GameObjects.Container | null = null;
   private scrollY = 0;
   private maxScrollY = 0;
+  backbutton: Phaser.GameObjects.Image | null = null;
 
   constructor() {
     super('Achievements');
+  }
+
+  preload() {
+      
+      this.load.image('back-button', '/assets/btn_back.png');
+    }
+
+  init() {
+    
+    this.backbutton = null;
   }
 
   create() {
     const { width, height } = this.scale;
 
     // Background
-    this.add.rectangle(width / 2, height / 2, width, height, 0x1a1a2e);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x503102);
 
     // Title
-    this.add
+   /* this.add
       .text(width / 2, 50, '🏆 ACHIEVEMENTS', {
         fontSize: '36px',
-        color: '#FFD700',
-        fontFamily: 'Arial',
+        color: '#4e2f00ff',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
@@ -33,17 +44,17 @@ export class Achievements extends Scene {
       .text(width / 2, 85, 'Click on unlocked achievements with 🏷️ to set your Reddit flair!', {
         fontSize: '16px',
         color: '#FFD700',
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5);*/
 
     // Back button
-    const backButton = this.add
+    /*const backButton = this.add
       .text(50, 60, '← BACK', {
         fontSize: '24px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         backgroundColor: '#4A90E2',
         padding: { x: 15, y: 8 },
       })
@@ -62,7 +73,16 @@ export class Achievements extends Scene {
     backButton.on('pointerout', () => {
       backButton.setScale(1);
       backButton.setStyle({ backgroundColor: '#4A90E2' });
-    });
+    });*/
+
+    this.backbutton = this.add
+      .image(width * 0.025, height * 0.025, 'back-button')
+      .setDepth(2000)
+      .setOrigin(0,0)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => {
+        this.scene.start('MainMenu');
+      });
 
     // Load achievements
     void this.loadAchievements();
@@ -118,23 +138,25 @@ export class Achievements extends Scene {
     this.scrollContainer = this.add.container(0, 0);
 
     // Stats header
-    const statsY = 130;
-    this.add
-      .text(width / 2, statsY, `${userAchievements.totalUnlocked}/${this.achievements.length} Unlocked`, {
-        fontSize: '24px',
+    const statsY = 80;
+    const unlocked = this.add
+      .text(width / 2, statsY, `${userAchievements.totalUnlocked}/${this.achievements.length} Achievements Unlocked`, {
+        fontSize: '16px',
         color: '#FFFFFF',
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
 
+    this.scrollContainer.add(unlocked);
+
     // Progress bar
     const progressBarWidth = width * 0.8;
-    const progressBarHeight = 20;
+    const progressBarHeight = 15;
     const progressBarX = width / 2 - progressBarWidth / 2;
-    const progressBarY = statsY + 40;
+    const progressBarY = statsY + 20;
 
     // Background bar
-    this.add.rectangle(
+    const progress = this.add.rectangle(
       width / 2,
       progressBarY,
       progressBarWidth,
@@ -144,13 +166,16 @@ export class Achievements extends Scene {
 
     // Progress fill
     const progressPercent = userAchievements.totalUnlocked / this.achievements.length;
-    this.add.rectangle(
+    const progressBG = this.add.rectangle(
       progressBarX + (progressBarWidth * progressPercent) / 2,
       progressBarY,
       progressBarWidth * progressPercent,
       progressBarHeight,
       0x4CAF50
     );
+
+    this.scrollContainer.add(progress);
+    this.scrollContainer.add(progressBG);
 
     // Achievement categories
     const categories = ['puzzle', 'speed', 'mastery', 'community'];
@@ -172,10 +197,10 @@ export class Achievements extends Scene {
       // Category header
       const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
       const categoryHeader = this.add
-        .text(width / 2, currentY, categoryTitle, {
-          fontSize: '28px',
+        .text(width / 2, currentY-10, categoryTitle, {
+          fontSize: '16px',
           color: '#FFFFFF',
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
           fontStyle: 'bold',
           backgroundColor: `#${categoryColors[category as keyof typeof categoryColors].toString(16)}`,
           padding: { x: 20, y: 10 },
@@ -202,7 +227,7 @@ export class Achievements extends Scene {
   private createAchievementItem(achievement: Achievement, width: number, y: number): Phaser.GameObjects.Container {
     const container = this.add.container(0, y);
     const itemWidth = width * 0.9;
-    const itemHeight = 80;
+    const itemHeight = 100;
 
     // Background
     const bgColor = achievement.isUnlocked ? 0x2E7D32 : 0x424242;
@@ -213,7 +238,7 @@ export class Achievements extends Scene {
     container.add(background);
 
     // Icon
-    const iconSize = achievement.isUnlocked ? 48 : 32;
+    /*const iconSize = achievement.isUnlocked ? 48 : 32;
     const iconColor = achievement.isUnlocked ? '#FFD700' : '#666666';
     const icon = this.add
       .text(width * 0.15, 0, achievement.icon, {
@@ -222,15 +247,15 @@ export class Achievements extends Scene {
       })
       .setOrigin(0.5);
 
-    container.add(icon);
+    container.add(icon);*/
 
     // Title and description
     const titleColor = achievement.isUnlocked ? '#FFFFFF' : '#AAAAAA';
     const title = this.add
-      .text(width * 0.3, -15, achievement.title, {
-        fontSize: '20px',
+      .text(width * 0.1, -25, achievement.title, {
+        fontSize: '18px',
         color: titleColor,
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         fontStyle: 'bold',
       })
       .setOrigin(0, 0.5);
@@ -242,10 +267,10 @@ export class Achievements extends Scene {
       achievement.description;
 
     const description = this.add
-      .text(width * 0.3, 10, descriptionText, {
+      .text(width * 0.1, 0, descriptionText, {
         fontSize: '16px',
         color: titleColor,
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0, 0.5);
 
@@ -253,23 +278,23 @@ export class Achievements extends Scene {
 
     // Unlock date and flair button (if unlocked)
     if (achievement.isUnlocked && achievement.unlockedAt) {
-      const unlockDate = new Date(achievement.unlockedAt).toLocaleDateString();
+      /*const unlockDate = new Date(achievement.unlockedAt).toLocaleDateString();
       const dateText = this.add
-        .text(width * 0.85, -15, `Unlocked: ${unlockDate}`, {
+        .text(width * 0.9, -10, `Unlocked: ${unlockDate}`, {
           fontSize: '12px',
           color: '#CCCCCC',
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(1, 0.5);
 
-      container.add(dateText);
+      container.add(dateText);*/
 
       // Add flair button if this achievement has a flair
       const flairButton = this.add
-        .text(width * 0.85, 15, '🏷️ Set Flair', {
+        .text(width * 0.94, -35, '🏷️ Set Flair', {
           fontSize: '12px',
           color: '#4CAF50',
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
           backgroundColor: '#1B5E20',
           padding: { x: 8, y: 4 },
         })
@@ -291,8 +316,8 @@ export class Achievements extends Scene {
     } else if (!achievement.isUnlocked) {
       // Lock icon
       const lockIcon = this.add
-        .text(width * 0.85, 0, '🔒', {
-          fontSize: '24px',
+        .text(width * 0.90, -35, '🔒', {
+          fontSize: '16px',
           color: '#666666',
         })
         .setOrigin(0.5);
@@ -365,9 +390,9 @@ export class Achievements extends Scene {
       // Title
       const title = this.add
         .text(width / 2, height / 2 - 80, 'Set Reddit Flair?', {
-          fontSize: '28px',
+          fontSize: '16px',
           color: '#FFFFFF',
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
           fontStyle: 'bold',
         })
         .setOrigin(0.5);
@@ -375,28 +400,28 @@ export class Achievements extends Scene {
       // Achievement info
       const achievementInfo = this.add
         .text(width / 2, height / 2 - 30, `${achievement.icon} ${achievement.title}`, {
-          fontSize: '24px',
+          fontSize: '16px',
           color: '#4CAF50',
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5);
 
       const description = this.add
-        .text(width / 2, height / 2, 'This will set your Reddit flair in this subreddit', {
+        .text(width / 2, height / 2, 'Set your Reddit flair in this subreddit', {
           fontSize: '16px',
           color: '#CCCCCC',
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5);
 
       // Buttons
       const confirmButton = this.add
-        .text(width / 2 - 80, height / 2 + 50, 'SET FLAIR', {
+        .text(width / 2 - 80, height / 2 + 70, 'SET FLAIR', {
           fontSize: '18px',
           color: '#FFFFFF',
           backgroundColor: '#4CAF50',
           padding: { x: 20, y: 10 },
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
@@ -406,12 +431,12 @@ export class Achievements extends Scene {
         });
 
       const cancelButton = this.add
-        .text(width / 2 + 80, height / 2 + 50, 'CANCEL', {
+        .text(width / 2 + 80, height / 2 + 70, 'CANCEL', {
           fontSize: '18px',
           color: '#FFFFFF',
           backgroundColor: '#666666',
           padding: { x: 20, y: 10 },
-          fontFamily: 'Arial',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
@@ -460,7 +485,7 @@ export class Achievements extends Scene {
         color: '#FFFFFF',
         backgroundColor: `#${color.toString(16)}`,
         padding: { x: 20, y: 10 },
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       })
       .setOrigin(0.5);
 
@@ -482,7 +507,7 @@ export class Achievements extends Scene {
       .text(width / 2, height / 2, message, {
         fontSize: '24px',
         color: '#FF6B6B',
-        fontFamily: 'Arial',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         align: 'center',
       })
       .setOrigin(0.5);

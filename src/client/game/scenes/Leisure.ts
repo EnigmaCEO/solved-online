@@ -298,6 +298,7 @@ export class Leisure extends Scene {
     const difficultyText = this.add.text(0, 15, puzzle.difficulty.toUpperCase(), {
       fontSize: '10px',
       color: '#ffffff',
+      fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
       fontStyle: 'bold'
     }).setOrigin(0.5);
     
@@ -590,6 +591,7 @@ export class Leisure extends Scene {
           fontSize: isMobile ? '11px' : '12px',
           color: textColor,
           fontStyle: 'bold',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         })
         .setOrigin(0.5);
 
@@ -604,6 +606,7 @@ export class Leisure extends Scene {
         const progressLabel = this.add
           .text(0, 8, progressText, {
             fontSize: isMobile ? '9px' : '10px',
+            fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
             color: hasUnlockedPuzzles ? progressColor : '#888888',
           })
           .setOrigin(0.5);
@@ -617,6 +620,7 @@ export class Leisure extends Scene {
       if (!hasUnlockedPuzzles && category.difficulty) {
         const lockIcon = this.add.text(buttonWidth / 2 - 8, -buttonHeight / 2 + 8, '🔒', {
           fontSize: '12px',
+          fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         }).setOrigin(0.5);
         button.add(lockIcon);
       }
@@ -784,6 +788,7 @@ export class Leisure extends Scene {
       .text(-width / 2 + 10, -height / 2 + 10, `${puzzle.pieces}`, {
         fontSize: '14px',
         color: '#FFFFFF',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         backgroundColor: '#8B4513',
         padding: { x: 6, y: 3 },
       })
@@ -940,6 +945,7 @@ export class Leisure extends Scene {
       const messageText = this.add.text(width / 2, height / 2, message, {
         fontSize: '16px',
         color: '#FFFFFF',
+        fontFamily: "'Segoe UI', 'Tahoma', sans-serif",
         backgroundColor: '#000000',
         padding: { x: 20, y: 10 },
         align: 'center'

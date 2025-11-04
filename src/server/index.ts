@@ -2167,7 +2167,7 @@ const ACHIEVEMENTS_CONFIG: Achievement[] = [
   {
     id: 'perfect_solver',
     title: '⭐ Perfect Solver',
-    description: 'Complete a puzzle with full stars (no mistakes)',
+    description: 'Complete a puzzle with no mistakes',
     icon: '⭐',
     isUnlocked: false,
     category: 'mastery',
@@ -2212,7 +2212,7 @@ const ACHIEVEMENTS_CONFIG: Achievement[] = [
   {
     id: 'community_creator',
     title: '🧠 Community Creator',
-    description: 'Submit a community puzzle that gets approved',
+    description: 'Submit an approved community puzzle',
     icon: '🧠',
     isUnlocked: false,
     category: 'community',
